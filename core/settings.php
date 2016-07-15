@@ -20,6 +20,8 @@ if (file_exists(CORE_DIR . '/user_constants.php')) {
 
 require 'core/Application.php';
 require 'core/controllers/BaseController.php';
+require 'core/Database.php';
+require 'core/Core.php';
 
 require_once 'core/libraries/smarty/SmartyBC.class.php';
 require_once 'core/libraries/smarty/SmartyInstance.class.php';

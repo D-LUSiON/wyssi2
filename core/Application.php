@@ -1,8 +1,12 @@
 <?php
 class Application {
+    
+    public $core;
 
     function __construct() {
-        echo here;
+        $this->core = new \Core();
+        
+        var_dump($this->core->interfaces);
     }
 
 }
