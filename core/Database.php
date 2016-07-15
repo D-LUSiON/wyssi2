@@ -145,13 +145,18 @@ class Database {
         return $this->db->lastInsertId();
     }
     
-    public function query($query, $values){
+    public function query($query, $values, $fetch_class = null){
         $this->getCaller();
+        
+        if (!isset($fetch_class)) {
+            $fetch_class = $this->caller_class;
+        }
+        
         $stmnt = $this->db->prepare($query);
         
         $stmnt->execute($values);
         
-        return $stmnt->fetchAll(\PDO::FETCH_CLASS, $this->caller_class);
+        return $stmnt->fetchAll(\PDO::FETCH_CLASS, $fetch_class);
         
         if ($stmnt->errorCode() != '00000')
             var_dump($stmnt->errorInfo());

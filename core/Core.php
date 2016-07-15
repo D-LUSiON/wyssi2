@@ -6,9 +6,46 @@ class Core {
     public $interfaces;
 
     function __construct() {
-        $this->db = new \Models\Database();
+        $this->_autoloadModels();
         
-        $this->getRegisteredInterfaces();
+        $this->_autoloadModules();
+        
+        $this->db = new \Models\Database();
+    }
+    
+    private function _autoloadModels(){
+        $core_models_dir = CORE_DIR . 'models';
+        if (file_exists($core_models_dir)) {
+            $core_models = scandir($core_models_dir);
+            for ($i = 0; $i < count($core_models); $i++) {
+                if (!in_array($core_models[$i], Array('.', '..'))) {
+                    require $core_models_dir . DIRECTORY_SEPARATOR . $core_models[$i];
+                }
+            }
+        }
+        
+        // load models for modules
+        for ($i = 0; $i < count($this->modules); $i++) {
+            $models_dir = MODULES_DIR . $this->modules[$i] . '/models';
+            if (file_exists($models_dir)) {
+                $models = scandir($models_dir);
+                for ($j = 0; $j < count($models); $j++) {
+                    if (!in_array($models[$j], Array('.', '..'))) {
+                        require_once $models_dir . DIRECTORY_SEPARATOR . $models[$j];
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    private function _autoloadModules(){
+        $mods = scandir(MODULES_DIR);
+        for ($i = 0; $i < count($mods); $i++) {
+            if (!in_array($mods[$i], Array('.', '..'))) {
+                $this->modules[] = $mods[$i];
+            }
+        }
     }
     
     /**
@@ -28,7 +65,27 @@ class Core {
      * 
      */
     public function getRegisteredInterfaces(){
-        $this->interfaces = $this->db->query('SELECT * FROM `core_interfaces`', NULL);
+        $this->interfaces = $this->db->query(
+                'SELECT interfaces.id, ' . 
+                       'interfaces.title, ' .
+                       'interfaces.sys_path, ' .
+                       'types.* ' .
+                'FROM `system_interfaces` AS interfaces ' .
+                    'INNER JOIN `system_interface_types` AS types ' .
+                        'ON interfaces.type = types.type_id',
+        NULL, 'Models\Wyssi_interface');
+    }
+    
+    public function getPublicInterfaces(){
+        $this->interfaces = $this->db->query(
+                'SELECT interfaces.id, ' . 
+                       'interfaces.title, ' .
+                       'interfaces.sys_path, ' .
+                       'types.* ' .
+                'FROM `system_interfaces` AS interfaces ' .
+                    'INNER JOIN `system_interface_types` AS types ' .
+                        'WHERE types.interface_type_title = `public`',
+        NULL, 'Models\Wyssi_interface');
     }
 
 }
