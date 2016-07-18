@@ -4,8 +4,19 @@ class Core {
     
     public $db;
     public $interfaces;
+    public $server;
+    public $session;
+    public $request_method;
+    public $request_get;
+    public $request_post;
 
     function __construct() {
+        $this->server = filter_input_array(INPUT_SERVER);
+        $this->session = $_SESSION;
+        $this->request_method = $this->server['REQUEST_METHOD'];
+        $this->request_get = filter_input_array(INPUT_GET);
+        $this->request_post = filter_input_array(INPUT_POST);
+        
         $this->_autoloadModels();
         
         $this->_autoloadModules();
